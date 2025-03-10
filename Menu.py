@@ -86,8 +86,9 @@ class Menu:
 player1 = ""
 player2 = ""
 
+P2_menu = Menu(["Login (P2)", "Signup (P2)", "Quit"])
 main_menu = Menu(["Login (P1)", "Signup (P1)", "Leaderboard", "Quit"])
 main_menu.navigate_menu()
 
-P2_menu = Menu(["Login (P2)", "Signup (P2)", "Quit"])
+
 
