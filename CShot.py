@@ -22,3 +22,16 @@ ARROW_BONUS_COLOR = (255, 255, 0)
 font = pygame.font.SysFont("Arial", 16, bold=True)
 bonus_font = pygame.font.SysFont("Arial", 12, bold=True)
 winner_font = pygame.font.SysFont("Arial", 24, bold=True)
+
+
+class GameObject:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.visible = True
+
+    def draw(self, screen):
+        pass
+
+    def is_hit(self, shot_x, shot_y):
+        pass
