@@ -1,5 +1,6 @@
 import pygame
 import sys
+import random
 
 pygame.init()
 WIDTH, HEIGHT = 800, 600
@@ -111,3 +112,48 @@ class Player:
         self.last_shot_x = shot_x
         self.last_shot_y = shot_y
         return points
+
+
+class Target(GameObject):
+    def __init__(self, x, y, radius=20):
+        super().__init__(x, y)
+        self.radius = radius
+        self.color = (200, 0, 0)
+
+    def draw(self, screen):
+        if self.visible:
+            pygame.draw.circle(screen, (150, 150, 150), (int(self.x), int(self.y)), self.radius + 5)
+            pygame.draw.circle(screen, (100, 0, 0), (int(self.x), int(self.y)), self.radius + 2)
+            pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius)
+
+    def is_hit(self, shot_x, shot_y):
+        distance = ((self.x - shot_x) ** 2 + (self.y - shot_y) ** 2) ** 0.5
+        return distance <= self.radius
+
+
+class BonusItem(Target):
+    def __init__(self, x, y, bonus_type="time", value=5):
+        super().__init__(x, y, radius=15)
+        self.bonus_type = bonus_type
+        self.value = value
+        self.lifetime = 300
+        self.color = TIME_BONUS_COLOR if bonus_type == "time" else ARROW_BONUS_COLOR
+
+    def update(self, dt):
+        self.lifetime -= 1
+        if self.lifetime <= 0:
+            self.visible = False
+
+    def apply_bonus(self, player):
+        if self.bonus_type == "time":
+            player.time += self.value
+        elif self.bonus_type == "arrows":
+            player.arrows += self.value
+
+    def draw(self, screen):
+        if self.visible:
+            pygame.draw.circle(screen, (150, 150, 150), (int(self.x), int(self.y)), self.radius + 5)
+            pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius)
+            label = bonus_font.render("T" if self.bonus_type == "time" else "A", True, TEXT_COLOR)
+            label_rect = label.get_rect(center=(self.x + self.radius + 10, self.y))
+            screen.blit(label, label_rect)
