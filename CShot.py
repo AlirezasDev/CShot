@@ -157,3 +157,100 @@ class BonusItem(Target):
             label = bonus_font.render("T" if self.bonus_type == "time" else "A", True, TEXT_COLOR)
             label_rect = label.get_rect(center=(self.x + self.radius + 10, self.y))
             screen.blit(label, label_rect)
+
+def get_player_names(screen):
+    title_font = pygame.font.SysFont("Arial", 48, bold=True)
+    input_font = pygame.font.SysFont("Arial", 32, bold=True)
+    button_font = pygame.font.SysFont("Arial", 24, bold=True)
+
+    BG_COLOR1 = (30, 30, 30)
+    BG_COLOR2 = (10, 10, 10)
+    TEXT_COLOR = (220, 220, 220)
+    SHADOW_COLOR = (20, 20, 20, 150)
+    BOX_COLOR = (50, 50, 50, 200)
+    BORDER_COLOR = (100, 100, 100)
+    BUTTON_COLOR = (70, 70, 70)
+    BUTTON_HOVER = (100, 100, 100)
+
+    input_box1 = pygame.Rect(200, 250, 200, 50)
+    input_box2 = pygame.Rect(450, 250, 200, 50)
+    button_rect = pygame.Rect(350, 350, 100, 40)
+
+    selected_box = 1
+    text1 = ''
+    text2 = ''
+    clock = pygame.time.Clock()
+    button_hover = False
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if input_box1.collidepoint(event.pos):
+                    selected_box = 1
+                elif input_box2.collidepoint(event.pos):
+                    selected_box = 2
+                elif button_rect.collidepoint(event.pos) and text1 and text2:
+                    return text1, text2
+            if event.type == pygame.KEYDOWN:
+                if selected_box == 1:
+                    if event.key == pygame.K_BACKSPACE:
+                        text1 = text1[:-1]
+                    elif event.key == pygame.K_TAB:
+                        selected_box = 2
+                    elif event.key != pygame.K_RETURN:
+                        text1 += event.unicode
+                elif selected_box == 2:
+                    if event.key == pygame.K_BACKSPACE:
+                        text2 = text2[:-1]
+                    elif event.key == pygame.K_TAB:
+                        selected_box = 1
+                    elif event.key != pygame.K_RETURN:
+                        text2 += event.unicode
+                if event.key == pygame.K_RETURN and text1 and text2:
+                    return text1, text2
+
+        mouse_pos = pygame.mouse.get_pos()
+        button_hover = button_rect.collidepoint(mouse_pos)
+
+        for y in range(screen.get_height()):
+            r = BG_COLOR1[0] + (BG_COLOR2[0] - BG_COLOR1[0]) * y / screen.get_height()
+            g = BG_COLOR1[1] + (BG_COLOR2[1] - BG_COLOR1[1]) * y / screen.get_height()
+            b = BG_COLOR1[2] + (BG_COLOR2[2] - BG_COLOR1[2]) * y / screen.get_height()
+            pygame.draw.line(screen, (r, g, b), (0, y), (screen.get_width(), y))
+
+        title_text = title_font.render("Enter Player Names", True, TEXT_COLOR)
+        shadow_text = title_font.render("Enter Player Names", True, SHADOW_COLOR)
+        title_rect = title_text.get_rect(center=(WIDTH // 2, 150))
+        screen.blit(shadow_text, title_rect.move(3, 3))
+        screen.blit(title_text, title_rect)
+
+        input_surface1 = input_font.render(text1, True, TEXT_COLOR)
+        input_rect1 = input_surface1.get_rect(center=input_box1.center)
+        pygame.draw.rect(screen, SHADOW_COLOR, input_box1.move(5, 5).inflate(10, 10), border_radius=15)
+        pygame.draw.rect(screen, BOX_COLOR, input_box1, border_radius=10)
+        pygame.draw.rect(screen, P1_COLOR if selected_box == 1 else BORDER_COLOR, input_box1, 2, border_radius=10)
+        screen.blit(input_surface1, input_rect1)
+        label1 = input_font.render("P1", True, P1_COLOR)
+        screen.blit(label1, (input_box1.x - 40, input_box1.y + 10))
+
+        input_surface2 = input_font.render(text2, True, TEXT_COLOR)
+        input_rect2 = input_surface2.get_rect(center=input_box2.center)
+        pygame.draw.rect(screen, SHADOW_COLOR, input_box2.move(5, 5).inflate(10, 10), border_radius=15)
+        pygame.draw.rect(screen, BOX_COLOR, input_box2, border_radius=10)
+        pygame.draw.rect(screen, P2_COLOR if selected_box == 2 else BORDER_COLOR, input_box2, 2, border_radius=10)
+        screen.blit(input_surface2, input_rect2)
+        label2 = input_font.render("P2", True, P2_COLOR)
+        screen.blit(label2, (input_box2.right + 10, input_box2.y + 10))
+
+        button_color = BUTTON_HOVER if button_hover else BUTTON_COLOR
+        pygame.draw.rect(screen, SHADOW_COLOR, button_rect.move(3, 3), border_radius=10)
+        pygame.draw.rect(screen, button_color, button_rect, border_radius=10)
+        button_text = button_font.render("Start", True, TEXT_COLOR)
+        button_text_rect = button_text.get_rect(center=button_rect.center)
+        screen.blit(button_text, button_text_rect)
+
+        pygame.display.flip()
+        clock.tick(60)
