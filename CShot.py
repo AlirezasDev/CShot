@@ -254,3 +254,118 @@ def get_player_names(screen):
 
         pygame.display.flip()
         clock.tick(60)
+
+
+# Initialize players and targets
+player1_name, player2_name = get_player_names(screen)
+player1 = Player(player1_name)
+player2 = Player(player2_name)
+
+targets = [Target(random.randint(50, WIDTH - 50), random.randint(50, HEIGHT - 50)) for _ in range(3)]
+bonus_items = []
+
+# Game loop
+running = True
+bonus_spawn_timer = 0
+BONUS_SPAWN_INTERVAL = 300
+game_over = False
+fade_alpha = 0
+next_bonus_is_arrow = True  # Start with arrow bonus
+
+while running:
+    dt = clock.tick(60) / 1000.0
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if not game_over:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN and player1.active:
+                    if player1.shoot():
+                        shot_x, shot_y = player1.pointer_x, player1.pointer_y
+                        for bonus in bonus_items[:]:
+                            if bonus.is_hit(shot_x, shot_y):
+                                bonus.apply_bonus(player1)
+                                bonus_items.remove(bonus)
+                                break
+                        else:
+                            for target in targets[:]:
+                                if target.is_hit(shot_x, shot_y):
+                                    points = player1.calculate_points(shot_x, shot_y)
+                                    if len(player1.shots) == 1:
+                                        points += 2
+                                    player1.score += points
+                                    player1.clear_shots()
+                                    targets.remove(target)
+                                    targets.append(
+                                        Target(random.randint(50, WIDTH - 50), random.randint(50, HEIGHT - 50)))
+                                    break
+                if event.key == pygame.K_SPACE and player2.active:
+                    if player2.shoot():
+                        shot_x, shot_y = player2.pointer_x, player2.pointer_y
+                        for bonus in bonus_items[:]:
+                            if bonus.is_hit(shot_x, shot_y):
+                                bonus.apply_bonus(player2)
+                                bonus_items.remove(bonus)
+                                break
+                        else:
+                            for target in targets[:]:
+                                if target.is_hit(shot_x, shot_y):
+                                    points = player2.calculate_points(shot_x, shot_y)
+                                    if len(player2.shots) == 1:
+                                        points += 2
+                                    player2.score += points
+                                    player2.clear_shots()
+                                    targets.remove(target)
+                                    targets.append(
+                                        Target(random.randint(50, WIDTH - 50), random.randint(50, HEIGHT - 50)))
+                                    break
+
+    if not game_over:
+        # Move pointers
+        keys = pygame.key.get_pressed()
+        player1.move_pointer(keys, 1, WIDTH, HEIGHT)
+        player2.move_pointer(keys, 2, WIDTH, HEIGHT)
+
+        # Update time and check game over
+        player1.update_time(dt)
+        player2.update_time(dt)
+
+        # Check win conditions
+        if not player1.active and player2.active:
+            game_over = True
+            winner = player2.name
+        elif player1.active and not player2.active:
+            game_over = True
+            winner = player1.name
+        elif not player1.active and not player2.active:
+            game_over = True
+            if player1.score > player2.score:
+                winner = player1.name
+            elif player2.score > player1.score:
+                winner = player2.name
+            elif player1.arrows > player2.arrows:
+                winner = player1.name
+            elif player2.arrows > player1.arrows:
+                winner = player2.name
+            else:
+                winner = "Draw"
+
+        for bonus in bonus_items[:]:
+            bonus.update(dt)
+            if not bonus.visible:
+                bonus_items.remove(bonus)
+
+        # Spawn bonus items alternately
+        bonus_spawn_timer += 1
+        if bonus_spawn_timer >= BONUS_SPAWN_INTERVAL:
+            bonus_type = "arrows" if next_bonus_is_arrow else "time"
+            bonus_items.append(
+                BonusItem(random.randint(50, WIDTH - 50), random.randint(50, HEIGHT - 50), bonus_type, 5))
+            next_bonus_is_arrow = not next_bonus_is_arrow  # Toggle for next spawn
+            bonus_spawn_timer = 0
+
+    pygame.display.flip()
+
+pygame.quit()
+sys.exit()
