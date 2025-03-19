@@ -22,6 +22,7 @@ class Signup(Player):
 
     def run(self):
         while True:
+            clear_terminal()
             self.email = input("Enter your email: ").strip()
             if any(members["email"] == self.email for members in accounts.accounts_list):
                 print("This email already exists!")
@@ -33,6 +34,7 @@ class Signup(Player):
                 retry_on_failure()
 
         while True:
+            clear_terminal()
             self.username = input("Enter your username: ").strip()
             if any(members["username"] == self.username for members in accounts.accounts_list):
                 print("This username already exists! Try another one.")
@@ -44,6 +46,7 @@ class Signup(Player):
                 retry_on_failure()
 
         while True:
+            clear_terminal()
             self.hashed_password = input("Enter your password: ").strip()
             if self.check_password():
                 self.hash_password(self.hashed_password)
@@ -72,6 +75,7 @@ class Login(Player):
     def run(self):
 
         while True:
+            clear_terminal()
             email_or_username = input("Enter your email or username: ").strip()
 
             if type(p1) != str:
@@ -103,6 +107,7 @@ class Login(Player):
             break
 
         while True:
+            clear_terminal()
             password = input("Enter your password: ")
             if hashlib.sha256(password.encode()).hexdigest() == self.hashed_password:
                 print(f"Welcome back, {self.username}!")
