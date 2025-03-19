@@ -365,6 +365,61 @@ while running:
             next_bonus_is_arrow = not next_bonus_is_arrow  # Toggle for next spawn
             bonus_spawn_timer = 0
 
+        # Draw dark gradient background
+        for y in range(HEIGHT):
+            r = BG_COLOR1[0] + (BG_COLOR2[0] - BG_COLOR1[0]) * y / HEIGHT
+            g = BG_COLOR1[1] + (BG_COLOR2[1] - BG_COLOR1[1]) * y / HEIGHT
+            b = BG_COLOR1[2] + (BG_COLOR2[2] - BG_COLOR1[2]) * y / HEIGHT
+            pygame.draw.line(screen, (r, g, b), (0, y), (WIDTH, y))
+
+        # Draw game elements
+        for target in targets:
+            target.draw(screen)
+        for bonus in bonus_items:
+            bonus.draw(screen)
+        for shot_x, shot_y in player1.shots:
+            pygame.draw.circle(screen, P1_COLOR, (int(shot_x), int(shot_y)), 5)
+        for shot_x, shot_y in player2.shots:
+            pygame.draw.circle(screen, P2_COLOR, (int(shot_x), int(shot_y)), 5)
+
+        # Player 1 Info
+        p1_info = font.render(f"{player1.name}: {player1.score} | Arrows: {player1.arrows} | Time: {int(player1.time)}",
+                              True, P1_COLOR)
+        p1_rect = pygame.Rect(10, 10, p1_info.get_width() + 20, p1_info.get_height() + 20)
+        pygame.draw.rect(screen, SHADOW_COLOR, p1_rect.move(5, 5), border_radius=10)
+        pygame.draw.rect(screen, TEXT_BG, p1_rect, border_radius=10)
+        screen.blit(p1_info, (p1_rect.x + 10, p1_rect.y + 10))
+
+        # Player 2 Info
+        p2_info = font.render(f"{player2.name}: {player2.score} | Arrows: {player2.arrows} | Time: {int(player2.time)}",
+                              True, P2_COLOR)
+        p2_rect = pygame.Rect(WIDTH - p2_info.get_width() - 30, 10, p2_info.get_width() + 20, p2_info.get_height() + 20)
+        pygame.draw.rect(screen, SHADOW_COLOR, p2_rect.move(5, 5), border_radius=10)
+        pygame.draw.rect(screen, TEXT_BG, p2_rect, border_radius=10)
+        screen.blit(p2_info, (p2_rect.x + 10, p2_rect.y + 10))
+
+    # Draw game over screen
+    if game_over:
+        if fade_alpha < 200:
+            fade_alpha += 10
+        overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, fade_alpha))
+        screen.blit(overlay, (0, 0))
+
+        winner_text = winner_font.render(f"Game Over! Winner: {winner}", True, TEXT_COLOR)
+        score_text = font.render(f"Scores - {player1.name}: {player1.score}, {player2.name}: {player2.score}", True,
+                                 TEXT_COLOR)
+        exit_text = font.render("Press ESC to exit", True, TEXT_COLOR)
+
+        screen.blit(winner_text, (WIDTH // 2 - winner_text.get_width() // 2, HEIGHT // 2 - 80))
+        screen.blit(score_text, (WIDTH // 2 - score_text.get_width() // 2, HEIGHT // 2 - 10))
+        screen.blit(exit_text, (WIDTH // 2 - exit_text.get_width() // 2, HEIGHT // 2 + 50))
+
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+
     pygame.display.flip()
 
 pygame.quit()
