@@ -22,6 +22,7 @@ class Signup(Player):
 
     def run(self):
         while True:
+            clear_terminal()
             self.email = input("Enter your email: ").strip()
             if any(members["email"] == self.email for members in accounts.accounts_list):
                 print("This email already exists!")
@@ -33,6 +34,7 @@ class Signup(Player):
                 retry_on_failure()
 
         while True:
+            clear_terminal()
             self.username = input("Enter your username: ").strip()
             if any(members["username"] == self.username for members in accounts.accounts_list):
                 print("This username already exists! Try another one.")
@@ -44,6 +46,7 @@ class Signup(Player):
                 retry_on_failure()
 
         while True:
+            clear_terminal()
             self.hashed_password = input("Enter your password: ").strip()
             if self.check_password():
                 self.hash_password(self.hashed_password)
@@ -72,6 +75,7 @@ class Login(Player):
     def run(self):
 
         while True:
+            clear_terminal()
             email_or_username = input("Enter your email or username: ").strip()
 
             if type(p1) != str:
@@ -103,6 +107,7 @@ class Login(Player):
             break
 
         while True:
+            clear_terminal()
             password = input("Enter your password: ")
             if hashlib.sha256(password.encode()).hexdigest() == self.hashed_password:
                 print(f"Welcome back, {self.username}!")
@@ -168,8 +173,10 @@ class Menu:
         elif selection == "Quit":
             return self.confirm_quit()
         elif selection == "Leaderboard":
+            Menu.leaderboard()
             return
         elif selection == "Main Menu":
+            main_menu.navigate_menu()
             return
 
     def confirm_quit(self):
@@ -187,6 +194,47 @@ class Menu:
                 exit()
             elif yorn == "n":
                 return self.navigate_menu()
+
+    def leaderboard():
+        clear_terminal()
+        users = accounts.accounts_list
+        sorted_users = sorted(users, key=lambda x: x["points"], reverse=True)
+
+        printy("=" * 36 + "TOP 3 PLAYERS" + "=" * 36, "BHw")
+        printy(" {:30}{:<20}{:<15}{:<19}".format("Username", "Points", "Wins", "Losses"), "BH")
+
+        try:
+            printy("  {:30}{:<+20}{:<16}{:<17}".format(sorted_users[0]['username'], sorted_users[0]['points'],
+                                                             sorted_users[0]['wins'], sorted_users[0]['losses']), "BHy")
+        except:
+            pass
+        try:
+            printy("  {:30}{:<+20}{:<16}{:<17}".format(sorted_users[1]['username'], sorted_users[1]['points'],
+                                                             sorted_users[1]['wins'], sorted_users[1]['losses']), "BHc")
+        except:
+            pass
+        try:
+            printy("  {:30}{:<+20}{:<16}{:<17}".format(sorted_users[2]['username'], sorted_users[2]['points'],
+                                                             sorted_users[2]['wins'], sorted_users[2]['losses']), "BHm")
+        except:
+            pass
+
+        printy("press 'q' to quit", "D")
+        printy("press 'm' to go back to the main menu", "D")
+
+        while True:
+            if keyboard.is_pressed('q'):
+                for count in range(3):
+                    for i in range(4):
+                        print("\rExiting the app" + "." * i + " " * (3 - i), end="")
+                        time.sleep(0.45)
+                clear_terminal()
+                print("\rBye!", end="")
+                time.sleep(1)
+                exit()
+
+            if keyboard.is_pressed('m'):
+                main_menu.navigate_menu()
 
 
 p1 = ""

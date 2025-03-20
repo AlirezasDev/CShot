@@ -23,7 +23,6 @@ class Player:
         self.username = ""
         self.email = ""
         self.hashed_password = ""
-        self.match_point = 0
 
     def check_mail(self):
         pattern = r"^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$"
@@ -40,10 +39,14 @@ class Player:
     def hash_password(self, password):
         self.hashed_password = hashlib.sha256(password.encode()).hexdigest()
 
-    def assign_point(self):
-        for members in accounts.accounts_list:
-            if members["username"] == self.username:
-                members["points"] += self.match_point
+    def assign_point(self, score, win_status):
+        for member in accounts.accounts_list:
+            if member["username"] == self.username:
+                if win_status == "W":
+                    member["wins"] += 1
+                elif win_status == "L":
+                    member["losses"] += 1
+                member["points"] += score
                 accounts.save_accounts()
 
 
