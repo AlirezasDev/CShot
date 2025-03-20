@@ -327,26 +327,16 @@ while running:
         player1.move_pointer(keys, 1, WIDTH, HEIGHT)
         player2.move_pointer(keys, 2, WIDTH, HEIGHT)
 
-        # Update time and check game over
+        # Update time and check player activity
         player1.update_time(dt)
         player2.update_time(dt)
 
-        # Check win conditions
-        if not player1.active and player2.active:
-            game_over = True
-            winner = player2.name
-        elif player1.active and not player2.active:
-            game_over = True
-            winner = player1.name
-        elif not player1.active and not player2.active:
+        # Check if both players are inactive (out of time or arrows)
+        if not player1.active and player1.arrows <= 0 and not player2.active and player2.arrows <= 0:
             game_over = True
             if player1.score > player2.score:
                 winner = player1.name
             elif player2.score > player1.score:
-                winner = player2.name
-            elif player1.arrows > player2.arrows:
-                winner = player1.name
-            elif player2.arrows > player1.arrows:
                 winner = player2.name
             else:
                 winner = "Draw"
