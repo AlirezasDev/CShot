@@ -159,7 +159,7 @@ class BonusItem(Target):
             label_rect = label.get_rect(center=(self.x + self.radius + 10, self.y))
             screen.blit(label, label_rect)
 
-
+# Initialize players and targets
 player1 = Player(p1.username)
 player2 = Player(p2.username)
 
@@ -229,16 +229,16 @@ while running:
         player1.move_pointer(keys, 1, WIDTH, HEIGHT)
         player2.move_pointer(keys, 2, WIDTH, HEIGHT)
 
-        # Update time and check player activity
+        # Update time (still affects active status, but not game end)
         player1.update_time(dt)
         player2.update_time(dt)
 
-        # Check if both players are inactive (out of time or arrows)
-        if not player1.active and player1.arrows <= 0 and not player2.active and player2.arrows <= 0:
+        # Check if both players are out of arrows
+        if player1.arrows <= 0 and player2.arrows <= 0:
             game_over = True
             if player1.score > player2.score:
                 winner = player1.name
-            elif player2.score > player1.score:
+            elif player2.score > player2.score:
                 winner = player2.name
             else:
                 winner = "Draw"
@@ -292,20 +292,6 @@ while running:
 
     # Draw game over screen
     if game_over:
-
-        #assign players points
-        if player1.name == winner:
-            p1.assign_point(player1.score, "W")
-            p2.assign_point(player2.score, "L")
-        elif player2.name == winner:
-            p1.assign_point(player1.score, "L")
-            p2.assign_point(player2.score, "W")
-
-        else:
-            p1.assign_point(player1.score, "D")
-            p2.assign_point(player2.score, "D")
-
-
         if fade_alpha < 200:
             fade_alpha += 10
         overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
