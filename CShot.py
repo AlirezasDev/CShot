@@ -137,11 +137,11 @@ class BonusItem(Target):
         super().__init__(x, y, radius=15)
         self.bonus_type = bonus_type
         self.value = value
-        self.lifetime = 300
+        self.lifetime = 5
         self.color = TIME_BONUS_COLOR if bonus_type == "time" else ARROW_BONUS_COLOR
 
     def update(self, dt):
-        self.lifetime -= 1
+        self.lifetime -= dt
         if self.lifetime <= 0:
             self.visible = False
 
@@ -233,12 +233,12 @@ while running:
         player1.update_time(dt)
         player2.update_time(dt)
 
-        # Check if both players are out of arrows
-        if player1.arrows <= 0 and player2.arrows <= 0:
+        # Check if both players are out of arrows or time
+        if (player1.arrows <= 0 and player2.arrows <= 0) or (player1.time <= 0 and player2.time <= 0):
             game_over = True
             if player1.score > player2.score:
                 winner = player1.name
-            elif player2.score > player2.score:
+            elif player2.score > player1.score:
                 winner = player2.name
             else:
                 winner = "Draw"
@@ -297,22 +297,24 @@ while running:
         overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
         overlay.fill((0, 0, 0, fade_alpha))
         screen.blit(overlay, (0, 0))
-
         winner_text = winner_font.render(f"Game Over! Winner: {winner}", True, TEXT_COLOR)
         score_text = font.render(f"Scores - {player1.name}: {player1.score}, {player2.name}: {player2.score}", True,
                                  TEXT_COLOR)
-        exit_text = font.render("Press ESC to exit", True, TEXT_COLOR)
-
         screen.blit(winner_text, (WIDTH // 2 - winner_text.get_width() // 2, HEIGHT // 2 - 80))
         screen.blit(score_text, (WIDTH // 2 - score_text.get_width() // 2, HEIGHT // 2 - 10))
-        screen.blit(exit_text, (WIDTH // 2 - exit_text.get_width() // 2, HEIGHT // 2 + 50))
 
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
 
     pygame.display.flip()
+
+if winner == p1.username:
+    p1.assign_point(player1.score, "W")
+    p2.assign_point(player2.score, "L")
+elif winner == p2.username:
+    p1.assign_point(player1.score, "L")
+    p2.assign_point(player2.score, "W")
+else:
+    p1.assign_point(player1.score, "D")
+    p2.assign_point(player2.score, "D")
 
 pygame.quit()
 sys.exit()
